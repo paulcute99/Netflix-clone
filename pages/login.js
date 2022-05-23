@@ -2,17 +2,19 @@ import React, { useState } from 'react'
 import Head from 'next/head'
 import Image from 'next/image'
 import { useForm } from 'react-hook-form';
+import useAuth from '../hooks/useAuth'
 
 
 function login() {
 
     const [login, setLogin] = useState(false);
     const { register, handleSubmit, watch, formState: { errors } } = useForm();
+    const {signIn,signUp} = useAuth(); 
     const onSubmit = async({email, password}) => {
         if(login){
-            //await signIn(email, password); 
+            await signIn(email, password); 
         }else{
-            //await singUp(email, password)
+            await signUp(email, password)
         }
     };  
 
