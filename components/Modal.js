@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from 'react'
 import MuiModal from '@mui/material/Modal'
 import { useRecoilState, useRecoilValue } from 'recoil';
-import { modalState } from '../atoms/ModalAtom';
+import { modalState, movieState } from '../atoms/ModalAtom';
 import { XIcon } from '@heroicons/react/outline';
+import ReactPlayer from 'react-player/lazy';
+import { FaPlay } from 'react-icons/fa'
 
 function Modal() {
 
@@ -10,7 +12,10 @@ function Modal() {
     const handleClose = () =>{
         setShowModal(false)
     }   
-    const [movie, setMovie] = useState(null);
+    const [movie, setMovie] = useRecoilState(movieState);
+    const [trailer, setTrailer] = useState("");
+    const [genres, setGenres] = useState([])
+    const [muted, setMuted] = useState(true)
 
     useEffect(() => {
      if(!movie) return;
@@ -24,20 +29,46 @@ function Modal() {
           }&language=en-US&append_to_response=videos`
           ).then((response) =>response.json())
 
-        // if(data?.videos){
-        //     const index = data.videos.results.findIndex()
-        // }
-     }
-    }, [])
-    
+        console.log(data)
+        if(data?.videos){
+            const index = data.videos.results.findIndex( (element) => element.type === 'Trailer');
+            setTrailer(data.videos?.results[index]?.key)
+        }
 
+        if(data?.genres){
+          setGenres(data.genres)
+        }
+     }
+
+     fetchMovie();
+    }, [movie]);
+  
   return (
     <MuiModal open = {showModal} onClose={handleClose}>
-        <>
+      <>
         <button onClick={handleClose} className="modalButton absolute right-5 top-5 !z-40 h-9 w-9 border-none bg-[#181818] hover:bg-[#181818]">
             <XIcon className='h-6 w-6'/>
         </button>
-        </>
+        <div className='relative pt-[56.25%]'>
+          <ReactPlayer
+              url={`https://www.youtube.com/watch?v=${trailer}`}
+              width="100%"
+              height="100%"
+              style={{ position: 'absolute', top: '0', left: '0' }}
+              playing
+              muted={muted}
+            />
+
+            <div>
+              <div>
+                <button className='flex items-center gap-x-2 rounded'>
+                  <FaPlay className="h-7 w-7 text-black" />
+                  Play
+                </button>
+              </div>
+            </div>
+        </div>
+      </>
     </MuiModal>
   )
 }
