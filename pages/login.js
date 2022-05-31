@@ -5,7 +5,7 @@ import { useForm } from 'react-hook-form';
 import useAuth from '../hooks/useAuth'
 
 
-function login() {
+export default function login() {
 
     const [loginState, setLoginState] = useState(false);
     const { register, handleSubmit, watch, formState: { errors } } = useForm();
@@ -97,5 +97,3 @@ function login() {
     </div>
   )
 }
-
-export default login
