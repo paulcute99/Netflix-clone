@@ -7,11 +7,11 @@ import useAuth from '../hooks/useAuth'
 
 function login() {
 
-    const [login, setLogin] = useState(false);
+    const [loginState, setLoginState] = useState(false);
     const { register, handleSubmit, watch, formState: { errors } } = useForm();
     const {signIn,signUp} = useAuth(); 
     const onSubmit = async({email, password}) => {
-        if(login){
+        if(loginState){
             await signIn(email, password); 
         }else{
             await signUp(email, password)
@@ -79,7 +79,7 @@ function login() {
 
         <button 
             className='w-full rounded bg-[#e50914] py-3 font-semibold'
-            onClick={()=>setLogin(true)}
+            onClick={()=>setLoginState(true)}
         > 
             Sign In 
         </button>
@@ -89,7 +89,7 @@ function login() {
             <button
              className=' text-white hover:underline'
              type='submit'
-             onClick={()=>setLogin(false)}>
+             onClick={()=>setLoginState(false)}>
                 Sign up now
             </button>
         </div>
