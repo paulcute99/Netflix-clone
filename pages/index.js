@@ -4,6 +4,7 @@ import { modalState } from '../atoms/ModalAtom'
 import Banner from '../components/Banner'
 import Header from '../components/Header'
 import Modal from '../components/Modal'
+import Plans from '../components/Plans'
 import Row from '../components/Row'
 import useAuth from '../hooks/useAuth'
 import requests from '../utils/requests'
@@ -22,8 +23,11 @@ export default function Home({
 
     const {loading} = useAuth();
     const showModal = useRecoilValue(modalState);
+    const subscription = false;
 
-    if(loading) return null
+    if(loading || subscription === null) return null;
+
+    if(!subscription) return <Plans/>
 
   return (
     <div
