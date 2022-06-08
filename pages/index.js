@@ -1,6 +1,6 @@
 import Head from 'next/head'
 import { useRecoilValue } from 'recoil'
-import { modalState } from '../atoms/ModalAtom'
+import { modalState, movieState } from '../atoms/ModalAtom'
 import Banner from '../components/Banner'
 import Header from '../components/Header'
 import Modal from '../components/Modal'
@@ -8,6 +8,10 @@ import Plans from '../components/Plans'
 import Row from '../components/Row'
 import useAuth from '../hooks/useAuth'
 import requests from '../utils/requests'
+import {getProducts} from '@stripe/firestore-stripe-payments'
+import payments from '../lib/stripe'
+import useSubscription from '../hooks/useSubscription'
+import useList from '../hooks/useList'
 
 
 export default function Home({
@@ -18,16 +22,19 @@ export default function Home({
   comedyMovies,
   horrorMovies,
   romanceMovies, 
-  documentaries
+  documentaries,
+  products
   }) {
-
-    const {loading} = useAuth();
+    console.log(products)
+    const {loading,user} = useAuth();
     const showModal = useRecoilValue(modalState);
-    const subscription = false;
+    const subscription = useSubscription(user);
+    const movie = useRecoilValue(movieState)
+    const list = useList(user?.uid)
 
     if(loading || subscription === null) return null;
 
-    if(!subscription) return <Plans/>
+    if(!subscription) return <Plans products = {products}/>
 
   return (
     <div
@@ -35,7 +42,7 @@ export default function Home({
     >
       <Head>
         <title>
-          {'Home'} - Netflix
+          {movie?.title || movie?.original_name || 'Home'} - Netflix
         </title>
         <link rel="icon" href="/favicon.ico" />
       </Head>
@@ -50,7 +57,7 @@ export default function Home({
           <Row title="Top Rated" movies={topRated} />
           <Row title="Action Thrillers" movies={actionMovies} />
           {/* My List */}
-          
+          {list.length > 0 && <Row title="My List" movies={list} />}
 
           <Row title="Comedies" movies={comedyMovies} />
           <Row title="Scary Movies" movies={horrorMovies} />
@@ -64,6 +71,10 @@ export default function Home({
 }
 
 export const getServerSideProps = async() =>{
+  const products = await getProducts(payments, {
+    includePrices: true,
+    activeOnly: true
+  }).then(res => res).catch((error) => console.log(error.message))
   const [
     netflixOriginals,
     trendingNow,
@@ -94,6 +105,7 @@ export const getServerSideProps = async() =>{
       horrorMovies: horrorMovies.results,
       romanceMovies: romanceMovies.results,
       documentaries: documentaries.results,
+      products
      }
   }
 }
